@@ -1,5 +1,6 @@
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const JWT_SECRET = 'this will be stored in .env';
 
 const authenticate = (req, res, next) => {
@@ -17,10 +18,19 @@ const authenticate = (req, res, next) => {
 }
 
 const loginUser = (req, res) => {
-  return User.findOne().then(user=> {
-    res.send({
-      user,
-      token: jwt.sign({user: user._id}, JWT_SECRET),
+  const { email, password } = req.body || {};
+
+  return User.findOne({email}).then(user=> {
+
+    bcrypt.compare(password, user.password).then(verified=> {
+      if(verified) {
+        res.send({
+          user,
+          token: jwt.sign({user: user._id}, JWT_SECRET),
+        });
+      } else {
+        res.status(401).send('Invalid credentials!');
+      }
     });
   }).catch(err => {
     console.log(err);
@@ -29,14 +39,22 @@ const loginUser = (req, res) => {
 }
 
 const registerUser = function(req, res) {
-  console.log('creating new user');
-  return User.create({
-    name: 'John Doe'
-  }).then(user=> {
-    res.status(201).send('success');
+  const { email, password } = req.body || {};
+
+  return bcrypt.hash(password, 10).then(hash => {
+    return User.create({
+      name: 'John Doe',
+      email,
+      password: hash,
+    }).then(user=> {
+      console.log(user);
+      res.status(201).send('success');
+    });
   }).catch(err => {
+    console.log(err);
     res.status(500).send('failed');
   });
+
 }
 
 const getProfile = (req, res) => {}
