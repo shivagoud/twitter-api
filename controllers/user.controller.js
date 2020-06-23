@@ -2,19 +2,17 @@ const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = 'this will be stored in .env';
 
-const authenticate = async (req, res, next) => {
+const authenticate = (req, res, next) => {
 
-  let { token } = req.data || {};
+  let { token } = req.body || {};
 
-  jwt.verify(token, JWT_SECRET, (err, authData) => {
-    if(err || !jwtData) {
-      res.status(401).send('Unauthenticated request!');
-      next();
-    } else {
-      req.authData = authData;
-      next();
-    }
-  });
+  try {
+    req.authData = jwt.verify(token, JWT_SECRET);
+    next();
+  } catch(err) {
+    console.log(err);
+    res.status(401).send('Unauthenticated request!');
+  }
 
 }
 
