@@ -1,4 +1,5 @@
 var express = require('express');
+const dbConnect = require('./db');
 const tweetRoutes = require('./routes/tweet.routes');
 // const userRoutes = require('./routes/user.routes');
 // const {getProfile} = require('./controllers/user.controllers');
@@ -17,8 +18,9 @@ app.get('/', function(req, res){
 // app.use('/users', userRoutes);
 app.use('/tweets', tweetRoutes);
 
-/* istanbul ignore next */
-if (!module.parent) {
+dbConnect().then(db => {
   app.listen(3000);
   console.log('Express started on port 3000');
-}
+}).catch(err => {
+  console.log('Couldn\'t connect to database');
+});

@@ -1,9 +1,21 @@
+const Tweet = require('../models/tweet');
+
 const getFeed = function(req, res) {
-  res.sendStatus(200);
+  return Tweet.find().then(tweets=> {
+    res.send(tweets);
+  }).catch(err => {
+    res.status(500).send('failed');
+  });
 }
 
 const createTweet = function(req, res) {
-  res.sendStatus(200);
+  return Tweet.create({
+    message: 'Test tweet'
+  }).then(tweet=> {
+    res.status(201).send('success');
+  }).catch(err => {
+    res.status(500).send('failed');
+  });
 }
 
-module.exports = {getFeed, createTweet}
+module.exports = {getFeed, createTweet};
