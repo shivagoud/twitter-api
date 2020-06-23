@@ -1,22 +1,29 @@
 var express = require('express');
+const compression = require('compression');
+const bodyParser = require('body-parser');
 const dbConnect = require('./db');
-const tweetRoutes = require('./routes/tweet.routes');
-// const userRoutes = require('./routes/user.routes');
-// const {getProfile} = require('./controllers/user.controllers');
-// const { authenticate } = require('./controllers/user.controllers');
+const tweetRouter = require('./routes/tweet.routes');
+const authRouter = require('./routes/auth.routes');
+const userRouter = require('./routes/user.routes');
+const { authenticate, getProfile } = require('./controllers/user.controller');
 
 var app = express();
+// Apply body Parser
+app.use(compression());
+app.use(bodyParser.json({ limit: '20mb' }));
+app.use(bodyParser.urlencoded({ limit: '20mb', extended: false }));
+
 
 app.get('/', function(req, res){
   res.send('Hello World');
 });
 
-// app.use('/auth', authRouter);
+app.use('/auth', authRouter);
 
-// app.use(authenticate);
-// app.get('/profile', getProfile);
-// app.use('/users', userRoutes);
-app.use('/tweets', tweetRoutes);
+app.use(authenticate);
+app.get('/profile', getProfile);
+app.use('/users', userRouter);
+app.use('/tweets', tweetRouter);
 
 dbConnect().then(db => {
   app.listen(3000);

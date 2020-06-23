@@ -1,10 +1,17 @@
 const mongoose = require('mongoose');
 
+const { ObjectId } = mongoose.Schema.Types;
+
 const Tweet = mongoose.model('Tweet', new mongoose.Schema({
-  // by: mongoose.Schema.Types.ObjectId,
-  // retweet: mongoose.Schema.Types.ObjectId,
+  owner: {
+    type: ObjectId,
+    ref: 'User'
+  },
+  retweet: {
+    type: ObjectId,
+    ref: 'Tweet'
+  },
   message: String,
-  // name: String
-}));
+}, {timestamps: true}));
 
 module.exports = Tweet;
